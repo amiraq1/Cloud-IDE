@@ -31,3 +31,492 @@
 [web] [2m٦:١٣:٠٨ م[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
 [web] [2m٦:١٤:٤٠ م[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/app.css[22m
 [web] [2m٦:١٥:٤٣ م[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mindex.html[22m
+[web] [2m١١:١٧:٠٧ م[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[web] [2m١١:١٧:٠٨ م[22m [31m[1m[vite][22m[39m [31mws proxy socket error:[39m
+[web] Error: write ECONNABORTED
+[web]     at afterWriteDispatched (node:internal/stream_base_commons:161:15)
+[web]     at writeGeneric (node:internal/stream_base_commons:152:3)
+[web]     at Socket._writeGeneric (node:net:958:11)
+[web]     at Socket._write (node:net:970:8)
+[web]     at writeOrBuffer (node:internal/streams/writable:572:12)
+[web]     at _write (node:internal/streams/writable:501:10)
+[web]     at Writable.write (node:internal/streams/writable:510:10)
+[web]     at Socket.ondata (node:internal/streams/readable:1009:22)
+[web]     at Socket.emit (node:events:524:28)
+[web]     at addChunk (node:internal/streams/readable:561:12)
+[web] [2m١١:١٧:٠٩ م[22m [31m[1m[vite][22m[39m [31mws proxy socket error:[39m
+[web] Error: write ECONNABORTED
+[web]     at afterWriteDispatched (node:internal/stream_base_commons:161:15)
+[web]     at writeGeneric (node:internal/stream_base_commons:152:3)
+[web]     at Socket._writeGeneric (node:net:958:11)
+[web]     at Socket._write (node:net:970:8)
+[web]     at writeOrBuffer (node:internal/streams/writable:572:12)
+[web]     at _write (node:internal/streams/writable:501:10)
+[web]     at Writable.write (node:internal/streams/writable:510:10)
+[web]     at Socket.ondata (node:internal/streams/readable:1009:22)
+[web]     at Socket.emit (node:events:524:28)
+[web]     at addChunk (node:internal/streams/readable:561:12)
+[web] [2m١١:١٨:١٨ م[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[web] [2m١١:١٨:٣٨ م[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/TerminalPanel.tsx[22m
+[web] [2m١١:١٨:٥٠ م[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[web] [2m١١:١٨:٥٠ م[22m [31m[1m[vite][22m[39m [31mws proxy socket error:[39m
+[web] Error: write ECONNABORTED
+[web]     at afterWriteDispatched (node:internal/stream_base_commons:161:15)
+[web]     at writeGeneric (node:internal/stream_base_commons:152:3)
+[web]     at Socket._writeGeneric (node:net:958:11)
+[web]     at Socket._write (node:net:970:8)
+[web]     at writeOrBuffer (node:internal/streams/writable:572:12)
+[web]     at _write (node:internal/streams/writable:501:10)
+[web]     at Writable.write (node:internal/streams/writable:510:10)
+[web]     at Socket.ondata (node:internal/streams/readable:1009:22)
+[web]     at Socket.emit (node:events:524:28)
+[web]     at addChunk (node:internal/streams/readable:561:12)
+[web] [2m١١:١٨:٥١ م[22m [31m[1m[vite][22m[39m [31mws proxy socket error:[39m
+[web] Error: write ECONNABORTED
+[web]     at afterWriteDispatched (node:internal/stream_base_commons:161:15)
+[web]     at writeGeneric (node:internal/stream_base_commons:152:3)
+[web]     at Socket._writeGeneric (node:net:958:11)
+[web]     at Socket._write (node:net:970:8)
+[web]     at writeOrBuffer (node:internal/streams/writable:572:12)
+[web]     at _write (node:internal/streams/writable:501:10)
+[web]     at Writable.write (node:internal/streams/writable:510:10)
+[web]     at Socket.ondata (node:internal/streams/readable:1009:22)
+[web]     at Socket.emit (node:events:524:28)
+[web]     at addChunk (node:internal/streams/readable:561:12)
+[web] [2m١١:١٨:٥١ م[22m [31m[1m[vite][22m[39m [31mws proxy socket error:[39m
+[web] Error: write ECONNABORTED
+[web]     at afterWriteDispatched (node:internal/stream_base_commons:161:15)
+[web]     at writeGeneric (node:internal/stream_base_commons:152:3)
+[web]     at Socket._writeGeneric (node:net:958:11)
+[web]     at Socket._write (node:net:970:8)
+[web]     at writeOrBuffer (node:internal/streams/writable:572:12)
+[web]     at _write (node:internal/streams/writable:501:10)
+[web]     at Writable.write (node:internal/streams/writable:510:10)
+[web]     at Socket.ondata (node:internal/streams/readable:1009:22)
+[web]     at Socket.emit (node:events:524:28)
+[web]     at addChunk (node:internal/streams/readable:561:12)
+[server] ١١:٢١:٠٧ م [tsx] change in ./src\runtime.ts Restarting...
+[web] [2m١١:٢١:٠٨ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] Error: read ECONNRESET
+[web]     at TCP.onStreamRead (node:internal/stream_base_commons:218:20)
+[web] [2m١١:٢١:٠٨ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] Error: read ECONNRESET
+[web]     at TCP.onStreamRead (node:internal/stream_base_commons:218:20)
+[web] [2m١١:٢١:٠٨ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] Error: read ECONNRESET
+[web]     at TCP.onStreamRead (node:internal/stream_base_commons:218:20)
+[server] c
+[web] [2m١١:٢١:٠٨ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[server] 
+[server] node:internal/modules/run_main:123
+[server]     triggerUncaughtException(
+[server]     ^
+[server] Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'dockerode' imported from D:\Cloud-IDE\apps\server\src\runtime.ts
+[server]     at packageResolve (node:internal/modules/esm/resolve:873:9)
+[server]     at moduleResolve (node:internal/modules/esm/resolve:946:18)
+[server]     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+[server]     at nextResolve (node:internal/modules/esm/hooks:864:28)
+[server]     at resolveBase (file:///D:/Cloud-IDE/node_modules/tsx/dist/esm/index.mjs?1773778868944:2:3744)
+[server]     at resolveDirectory (file:///D:/Cloud-IDE/node_modules/tsx/dist/esm/index.mjs?1773778868944:2:4243)
+[server]     at resolveTsPaths (file:///D:/Cloud-IDE/node_modules/tsx/dist/esm/index.mjs?1773778868944:2:4984)
+[server]     at resolve (file:///D:/Cloud-IDE/node_modules/tsx/dist/esm/index.mjs?1773778868944:2:5361)
+[server]     at nextResolve (node:internal/modules/esm/hooks:864:28)
+[server]     at Hooks.resolve (node:internal/modules/esm/hooks:306:30) {
+[server]   code: 'ERR_MODULE_NOT_FOUND'
+[server] }
+[server] 
+[server] Node.js v20.20.0
+[web] [2m١١:٢١:٠٩ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:١٠ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:١١ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:١١ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:١٢ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:١٤ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:١٥ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:١٨ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:١٩ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:٢٠ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:٢٤ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:٢٤ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:٢٦ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:٢٩ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[server] ١١:٢١:٣٠ م [tsx] change in ./src\index.ts Rerunning...
+[server] c
+[web] [2m١١:٢١:٣١ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[server] 
+[server] node:internal/modules/run_main:123
+[server]     triggerUncaughtException(
+[server]     ^
+[server] Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'dockerode' imported from D:\Cloud-IDE\apps\server\src\runtime.ts
+[server]     at packageResolve (node:internal/modules/esm/resolve:873:9)
+[server]     at moduleResolve (node:internal/modules/esm/resolve:946:18)
+[server]     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+[server]     at nextResolve (node:internal/modules/esm/hooks:864:28)
+[server]     at resolveBase (file:///D:/Cloud-IDE/node_modules/tsx/dist/esm/index.mjs?1773778890579:2:3744)
+[server]     at resolveDirectory (file:///D:/Cloud-IDE/node_modules/tsx/dist/esm/index.mjs?1773778890579:2:4243)
+[server]     at resolveTsPaths (file:///D:/Cloud-IDE/node_modules/tsx/dist/esm/index.mjs?1773778890579:2:4984)
+[server]     at resolve (file:///D:/Cloud-IDE/node_modules/tsx/dist/esm/index.mjs?1773778890579:2:5361)
+[server]     at nextResolve (node:internal/modules/esm/hooks:864:28)
+[server]     at Hooks.resolve (node:internal/modules/esm/hooks:306:30) {
+[server]   code: 'ERR_MODULE_NOT_FOUND'
+[server] }
+[server] 
+[server] Node.js v20.20.0
+[web] [2m١١:٢١:٣٢ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:٣٤ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:٣٦ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:٣٨ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:٣٩ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:٤٢ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:٤٤ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:٤٤ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:٤٨ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:٥٠ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:٥١ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:٥٤ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:٥٥ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢١:٥٧ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٢:٠١ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٢:٠٣ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٢:٠٧ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٢:٠٩ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٢:١٣ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٢:١٥ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٢:١٩ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٢:٢١ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٢:٢٥ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٢:٢٨ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٢:٣٤ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٢:٣٤ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٢:٤٠ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٢:٤٤ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٢:٥٠ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٢:٥١ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٣:٠٢ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٣:٠٣ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٣:٠٩ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٣:١٢ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٣:١٤ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٣:٢١ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٣:٢٢ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٣:٢٧ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٣:٣٣ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٣:٣٣ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٣:٣٩ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٣:٤١ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[server] ١١:٢٣:٤٤ م [tsx] change in ./src\runtime.ts Rerunning...
+[server] c
+[web] [2m١١:٢٣:٤٥ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[server] cloud-ide server listening on http://localhost:8787
+[server] ١١:٢٣:٥٣ م [tsx] change in ./src\runtime.ts Restarting...
+[web] [2m١١:٢٣:٥٣ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] Error: read ECONNRESET
+[web]     at TCP.onStreamRead (node:internal/stream_base_commons:218:20)
+[web] [2m١١:٢٣:٥٣ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] Error: read ECONNRESET
+[web]     at TCP.onStreamRead (node:internal/stream_base_commons:218:20)
+[server] c
+[web] [2m١١:٢٣:٥٦ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[server] cloud-ide server listening on http://localhost:8787
+[server] ١١:٢٤:٠١ م [tsx] change in ./src\index.ts Restarting...
+[web] [2m١١:٢٤:٠١ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] Error: read ECONNRESET
+[web]     at TCP.onStreamRead (node:internal/stream_base_commons:218:20)
+[web] [2m١١:٢٤:٠١ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] Error: read ECONNRESET
+[web]     at TCP.onStreamRead (node:internal/stream_base_commons:218:20)
+[server] c
+[web] [2m١١:٢٤:٠٤ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[web] [2m١١:٢٤:٠٤ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] AggregateError [ECONNREFUSED]: 
+[web]     at internalConnectMultiple (node:net:1122:18)
+[web]     at afterConnectMultiple (node:net:1689:7)
+[server] cloud-ide server listening on http://localhost:8787
+[web] [2m١١:٢٥:٢٧ م[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/main.tsx[22m
+[web] [2m١١:٣٥:٠٠ م[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[web] [2m١١:٣٥:٠٠ م[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[web] [2m١١:٣٥:٠٠ م[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/main.tsx[22m
+[server] ١١:٣٥:٠٠ م [tsx] change in ./src\runtime.ts Restarting...
+[web] [2m١١:٣٥:٠٠ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] Error: read ECONNRESET
+[web]     at TCP.onStreamRead (node:internal/stream_base_commons:218:20)
+[web] [2m١١:٣٥:٠٠ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] Error: read ECONNRESET
+[web]     at TCP.onStreamRead (node:internal/stream_base_commons:218:20)
+[web] [2m١١:٣٥:٠٠ م[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+[web] Error: read ECONNRESET
+[web]     at TCP.onStreamRead (node:internal/stream_base_commons:218:20)
+[server] ccloud-ide server listening on http://localhost:8787
+[web] [2m١١:٣٥:١٧ م[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/EditorWorkspace.tsx[22m
+[web] [2m١١:٣٥:٢٩ م[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/TerminalPanel.tsx[22m
+[web] [2m١١:٥٠:٣٩ م[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mindex.html[22m
+[web] [2m١١:٥١:١٦ م[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[web] [2m١١:٥٢:١٣ م[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[web] [2m١١:٥٤:٤٩ م[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[web] [2m١١:٥٥:٤٠ م[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[web] [2m١١:٥٦:١٦ م[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[server] ١٢:١٠:٢٠ ص [tsx] unlink in ./..\..\node_modules\tar-stream\extract.js Restarting...
+[server] c١٢:١٠:٢١ ص [tsx] unlink in ./..\..\node_modules\ssh2\lib\protocol\utils.js Restarting...
+[server] ccloud-ide server listening on http://localhost:8787
+[server] ١٢:١٣:١٢ ص [tsx] change in ./src\index.ts Restarting...
+[server] c
+[server] node:internal/modules/run_main:123
+[server]     triggerUncaughtException(
+[server]     ^
+[server] Error [TransformError]: Transform failed with 1 error:
+[server] D:\Cloud-IDE\apps\server\src\docker.ts:54:13: ERROR: Syntax error "`"
+[server]     at failureErrorWithLog (D:\Cloud-IDE\node_modules\esbuild\lib\main.js:1748:15)
+[server]     at D:\Cloud-IDE\node_modules\esbuild\lib\main.js:1017:50
+[server]     at responseCallbacks.<computed> (D:\Cloud-IDE\node_modules\esbuild\lib\main.js:884:9)
+[server]     at handleIncomingPacket (D:\Cloud-IDE\node_modules\esbuild\lib\main.js:939:12)
+[server]     at Socket.readFromStdout (D:\Cloud-IDE\node_modules\esbuild\lib\main.js:862:7)
+[server]     at Socket.emit (node:events:524:28)
+[server]     at addChunk (node:internal/streams/readable:561:12)
+[server]     at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+[server]     at Readable.push (node:internal/streams/readable:392:5)
+[server]     at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+[server] 
+[server] Node.js v20.20.0
+[server] ١٢:١٣:٣٤ ص [tsx] unlink in ./..\..\node_modules\ssh2\lib\protocol\crypto\poly1305.js Rerunning...
+[server] c
+[server] node:internal/modules/run_main:123
+[server]     triggerUncaughtException(
+[server]     ^
+[server] Error [TransformError]: Transform failed with 1 error:
+[server] D:\Cloud-IDE\apps\server\src\docker.ts:54:13: ERROR: Syntax error "`"
+[server]     at failureErrorWithLog (D:\Cloud-IDE\node_modules\esbuild\lib\main.js:1748:15)
+[server]     at D:\Cloud-IDE\node_modules\esbuild\lib\main.js:1017:50
+[server]     at responseCallbacks.<computed> (D:\Cloud-IDE\node_modules\esbuild\lib\main.js:884:9)
+[server]     at handleIncomingPacket (D:\Cloud-IDE\node_modules\esbuild\lib\main.js:939:12)
+[server]     at Socket.readFromStdout (D:\Cloud-IDE\node_modules\esbuild\lib\main.js:862:7)
+[server]     at Socket.emit (node:events:524:28)
+[server]     at addChunk (node:internal/streams/readable:561:12)
+[server]     at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+[server]     at Readable.push (node:internal/streams/readable:392:5)
+[server]     at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+[server] 
+[server] Node.js v20.20.0
+[server] ١٢:١٣:٣٨ ص [tsx] change in ./src\docker.ts Rerunning...
+[server] c
+[server] node:internal/modules/run_main:123
+[server]     triggerUncaughtException(
+[server]     ^
+[server] Error [TransformError]: Transform failed with 1 error:
+[server] D:\Cloud-IDE\apps\server\src\docker.ts:54:13: ERROR: Syntax error "`"
+[server]     at failureErrorWithLog (D:\Cloud-IDE\node_modules\esbuild\lib\main.js:1748:15)
+[server]     at D:\Cloud-IDE\node_modules\esbuild\lib\main.js:1017:50
+[server]     at responseCallbacks.<computed> (D:\Cloud-IDE\node_modules\esbuild\lib\main.js:884:9)
+[server]     at handleIncomingPacket (D:\Cloud-IDE\node_modules\esbuild\lib\main.js:939:12)
+[server]     at Socket.readFromStdout (D:\Cloud-IDE\node_modules\esbuild\lib\main.js:862:7)
+[server]     at Socket.emit (node:events:524:28)
+[server]     at addChunk (node:internal/streams/readable:561:12)
+[server]     at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+[server]     at Readable.push (node:internal/streams/readable:392:5)
+[server]     at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+[server] 
+[server] Node.js v20.20.0
+[server] ١٢:١٤:١٠ ص [tsx] change in ./src\docker.ts Rerunning...
+[server] c١٢:١٤:٢٣ ص [tsx] change in ./..\..\node_modules\ssh2\lib\protocol\crypto\poly1305.js Rerunning...
+[server] c١٢:١٧:٠٧ ص [tsx] change in ./src\index.ts Rerunning...
+[server] ccloud-ide server listening on http://localhost:8787
+[server] D:\Cloud-IDE\node_modules\node-pty\src\conpty_console_list_agent.ts:13
+[server] const consoleProcessList = getConsoleProcessList(shellPid);
+[server]                            ^
+[server] 
+[server] 
+[server] Error: AttachConsole failed
+[server]     at Object.<anonymous> (D:\Cloud-IDE\node_modules\node-pty\src\conpty_console_list_agent.ts:13:28)
+[server]     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+[server]     at Object.transformer (D:\Cloud-IDE\node_modules\tsx\dist\register-D46fvsV_.cjs:3:1104)
+[server]     at Module.load (node:internal/modules/cjs/loader:1266:32)
+[server]     at Module._load (node:internal/modules/cjs/loader:1091:12)
+[server]     at cjsLoader (node:internal/modules/esm/translators:298:15)
+[server]     at ModuleWrap.<anonymous> (node:internal/modules/esm/translators:240:7)
+[server]     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+[server]     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+[server]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+[server] 
+[server] Node.js v20.20.0

@@ -1,7 +1,14 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import { Server } from "socket.io";
-import { createMockRuntimeController, type RunRequest } from "./runtime.js";
+// import { createMockRuntimeController, type RunRequest } from "./runtime.js";
+import { createDockerRuntimeController } from "./docker.js";
+
+interface RunRequest {
+  code: string;
+  fileName: string;
+  language: string;
+}
 
 const app = Fastify({
   logger: false
@@ -17,8 +24,8 @@ app.get("/api/health", async () => ({
 
 app.get("/api/session", async () => ({
   projectName: "Basalt Control Room",
-  description: "Cloud IDE starter with a socket-driven runtime shell and a mock execution adapter.",
-  runner: "mock-stream",
+  description: "Cloud IDE starter with Docker execution adapter.",
+  runner: "docker-pty",
   transport: "socket.io",
   features: [
     "Monaco workspace models",
@@ -28,7 +35,7 @@ app.get("/api/session", async () => ({
   ]
 }));
 
-const runtime = createMockRuntimeController();
+const runtime = createDockerRuntimeController();
 
 const io = new Server(app.server, {
   cors: {
@@ -42,7 +49,8 @@ io.on("connection", (socket) => {
       socket.emit("runtime:feed", payload);
     },
     emitLine: (payload: { kind: "stdout" | "stderr" | "system" | "stdin"; text: string }) => {
-      socket.emit("runtime:line", payload);
+      // Direct raw PTY data to the new pty:data event for Xterm.js
+      socket.emit("pty:data", { data: payload.text }); 
     },
     emitStatus: (payload: { status: "idle" | "queued" | "running"; detail: string }) => {
       socket.emit("runtime:status", payload);
@@ -51,11 +59,11 @@ io.on("connection", (socket) => {
 
   bridge.emitLine({
     kind: "system",
-    text: "runtime bridge attached"
+    text: "\r\n\x1b[36m❖ Cloud IDE Core attached.\x1b[0m\r\n"
   });
   bridge.emitStatus({
     status: "idle",
-    detail: "Sandbox standing by"
+    detail: "تم الاتصال: Sandbox جاهز"
   });
 
   socket.on("runtime:run", (payload: Partial<RunRequest>) => {
@@ -65,11 +73,11 @@ io.on("connection", (socket) => {
       language: payload.language ?? "typescript"
     };
 
-    runtime.run(socket.id, request, bridge);
+    runtime.run(socket.id, request, bridge as any);
   });
 
   socket.on("terminal:input", (payload: { data?: string }) => {
-    runtime.receiveInput(socket.id, payload.data ?? "", bridge);
+    runtime.receiveInput(socket.id, payload.data ?? "", bridge as any);
   });
 
   socket.on("disconnect", () => {
@@ -87,6 +95,6 @@ try {
 
   console.log(`cloud-ide server listening on http://localhost:${port}`);
 } catch (error) {
-  app.log.error(error);
+  console.error("FATAL ERROR BOOTING SERVER:", error);
   process.exit(1);
 }
