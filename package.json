@@ -1,0 +1,17 @@
+{
+  "name": "cloud-ide",
+  "private": true,
+  "workspaces": [
+    "apps/web",
+    "apps/server"
+  ],
+  "scripts": {
+    "dev": "concurrently -n web,server -c yellow,cyan \"npm run dev --workspace @cloud-ide/web\" \"npm run dev --workspace @cloud-ide/server\"",
+    "build": "npm run build --workspace @cloud-ide/server && npm run build --workspace @cloud-ide/web"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "typescript": "^5.8.2"
+  }
+}
+
