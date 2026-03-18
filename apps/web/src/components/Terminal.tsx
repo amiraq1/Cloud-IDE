@@ -17,23 +17,22 @@ export default function Terminal({ socket, className = "" }: TerminalProps) {
   useEffect(() => {
     if (!terminalRef.current) return;
 
-    // Initialize xterm with Avant-Garde aesthetic
     const term = new XTerm({
       fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
       fontSize: 13,
       theme: {
-        background: '#09090b', // Deep void match
-        foreground: '#e4e4e7',
-        cursor: '#efb13f',
-        cursorAccent: '#000000',
-        selectionBackground: 'rgba(239, 177, 63, 0.3)',
+        background: '#0d1016',
+        foreground: '#eef2f8',
+        cursor: '#ff6a2b',
+        cursorAccent: '#0d1016',
+        selectionBackground: 'rgba(255, 106, 43, 0.24)',
         black: '#000000',
-        red: '#ef4444',
-        green: '#10b981',
-        yellow: '#efb13f',
-        blue: '#3b82f6',
-        magenta: '#8b5cf6',
-        cyan: '#06b6d4',
+        red: '#f87171',
+        green: '#34d399',
+        yellow: '#f7a76c',
+        blue: '#60a5fa',
+        magenta: '#c084fc',
+        cyan: '#22d3ee',
         white: '#ffffff',
       },
       cursorBlink: true,
@@ -59,7 +58,7 @@ export default function Terminal({ socket, className = "" }: TerminalProps) {
           xtermRef.current = term;
           fitAddonRef.current = fitAddon;
 
-          term.writeln('\x1b[33;1m»\x1b[0m Cloud IDE Max Runtime Environment Executing...');
+          term.writeln('\x1b[38;5;208mCloud IDE Agent Runtime\x1b[0m');
           term.writeln('\x1b[90mConnecting to execution socket bridge...\x1b[0m');
 
           const tryFit = () => {

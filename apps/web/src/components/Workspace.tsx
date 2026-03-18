@@ -1,350 +1,603 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import type { LucideIcon } from "lucide-react";
+import {
+  Bot,
+  CircleDot,
+  FolderTree,
+  LayoutPanelLeft,
+  Play,
+  Rocket,
+  Search,
+  Settings2,
+  Share2,
+  Sparkles,
+  TerminalSquare,
+  UsersRound,
+  X
+} from "lucide-react";
 import Editor, { OnMount, BeforeMount } from "@monaco-editor/react";
 import { io, Socket } from "socket.io-client";
 import Terminal from "./Terminal";
 import FileExplorer from "./FileExplorer";
+import EditorTabs from "./EditorTabs";
+import Breadcrumb from "./Breadcrumb";
 import { useFileSystem, FileNode } from "../store/filesystem";
+import { useTabs } from "../store/tabs";
 
 interface WorkspaceProps {
   prompt: string;
   onClose: () => void;
 }
 
-export default function Workspace({ prompt, onClose }: WorkspaceProps) {
-  const { data, activeFileId, updateFile } = useFileSystem();
-  const editorRef = useRef<any>(null);
-  
-  // Find active file recursively from standard tree
-  const findNode = (nodes: FileNode[], id: string): FileNode | undefined => {
-    for (const node of nodes) {
-      if (node.id === id) return node;
-      if (node.children) {
-        const found = findNode(node.children, id);
-        if (found) return found;
-      }
+const railItems: Array<{ label: string; icon: LucideIcon; active?: boolean }> = [
+  { label: "Workspace", icon: LayoutPanelLeft, active: true },
+  { label: "Files", icon: FolderTree },
+  { label: "Agent", icon: Bot },
+  { label: "Runtime", icon: TerminalSquare },
+  { label: "Search", icon: Search },
+  { label: "Settings", icon: Settings2 }
+];
+
+const collaboratorNames = ["Rana", "Omar", "Mina"];
+
+function getRuntimeSocketUrl() {
+  if (typeof window === "undefined") {
+    return "http://localhost:8787";
+  }
+
+  const protocol = window.location.protocol === "https:" ? "https" : "http";
+  return `${protocol}://${window.location.hostname}:8787`;
+}
+
+function findNode(nodes: FileNode[], id: string): FileNode | undefined {
+  for (const node of nodes) {
+    if (node.id === id) return node;
+    if (node.children) {
+      const found = findNode(node.children, id);
+      if (found) return found;
     }
-    return undefined;
-  };
-  
-  const activeFile = activeFileId ? findNode(data, activeFileId) : undefined;
-  
+  }
+  return undefined;
+}
+
+function countFiles(nodes: FileNode[]): number {
+  return nodes.reduce((total, node) => {
+    if (node.type === "file") return total + 1;
+    return total + countFiles(node.children || []);
+  }, 0);
+}
+
+export default function Workspace({ prompt, onClose }: WorkspaceProps) {
+  const { data, activeFileId, setActiveFile, updateFile } = useFileSystem();
+  const { openTabs, activeTabId, openTab, closeTab, closeOtherTabs, closeAllTabs, markDirty } = useTabs();
+  const editorRef = useRef<any>(null);
+
+  const [sidebarWidth, setSidebarWidth] = useState(300);
+  const [terminalHeight, setTerminalHeight] = useState(220);
+  const isResizingSidebar = useRef(false);
+  const isResizingTerminal = useRef(false);
   const [socket, setSocket] = useState<Socket | null>(null);
-  const [termStatus, setTermStatus] = useState("disconnected");
+  const [termStatus, setTermStatus] = useState("connecting");
+  const [tabContextMenu, setTabContextMenu] = useState<{
+    x: number;
+    y: number;
+    tabId: string;
+  } | null>(null);
 
   useEffect(() => {
-    // Attempting to connect to the fastify backend on 8787 port
-    const newSocket = io("http://localhost:8787", {
-      transports: ['websocket'],
-      autoConnect: true,
-    });
+    if (activeTabId && activeTabId !== activeFileId) {
+      setActiveFile(activeTabId);
+    }
+  }, [activeTabId, activeFileId, setActiveFile]);
 
-    newSocket.on("connect", () => {
-      setTermStatus("connected");
-      console.log("Socket connected:", newSocket.id);
-    });
+  const currentFileId = activeTabId || activeFileId;
+  const activeFile = currentFileId ? findNode(data, currentFileId) : undefined;
+  const fileCount = countFiles(data);
 
-    newSocket.on("disconnect", () => {
-      setTermStatus("disconnected");
-      console.log("Socket disconnected");
+  useEffect(() => {
+    let disposed = false;
+    const runtimeUrl = getRuntimeSocketUrl();
+    const healthController = new AbortController();
+    const newSocket = io(runtimeUrl, {
+      transports: ["websocket"],
+      autoConnect: false
     });
+    const connectTimer = window.setTimeout(() => {
+      void (async () => {
+        try {
+          const response = await fetch(`${runtimeUrl}/api/health`, {
+            signal: healthController.signal
+          });
 
-    newSocket.on("runtime:status", (statusPayload: {status: string, detail: string}) => {
-       setTermStatus(statusPayload.detail);
-    });
+          if (!response.ok || disposed) {
+            return;
+          }
+
+          setTermStatus("connecting");
+          newSocket.connect();
+        } catch (error) {
+          if (!disposed && !healthController.signal.aborted) {
+            setTermStatus("runtime unavailable");
+          }
+        }
+      })();
+    }, 0);
+
+    const handleConnect = () => {
+      if (!disposed) {
+        setTermStatus("connected");
+      }
+    };
+
+    const handleDisconnect = () => {
+      if (!disposed) {
+        setTermStatus("disconnected");
+      }
+    };
+
+    const handleConnectError = () => {
+      if (!disposed) {
+        setTermStatus("runtime unavailable");
+      }
+    };
+
+    const handleRuntimeStatus = (statusPayload: { detail: string }) => {
+      if (!disposed) {
+        setTermStatus(statusPayload.detail);
+      }
+    };
+
+    newSocket.on("connect", handleConnect);
+    newSocket.on("disconnect", handleDisconnect);
+    newSocket.on("connect_error", handleConnectError);
+    newSocket.on("runtime:status", handleRuntimeStatus);
 
     setSocket(newSocket);
 
     return () => {
-      newSocket.disconnect();
+      disposed = true;
+      healthController.abort();
+      window.clearTimeout(connectTimer);
+      newSocket.off("connect", handleConnect);
+      newSocket.off("disconnect", handleDisconnect);
+      newSocket.off("connect_error", handleConnectError);
+      newSocket.off("runtime:status", handleRuntimeStatus);
+
+      if (newSocket.connected || newSocket.active) {
+        newSocket.disconnect();
+      }
     };
   }, []);
 
   const handleRunFile = () => {
-    if (socket && socket.connected && activeFile) {
-      if (activeFile.type === "folder") {
-        alert("لا يمكن تشغيل مجلد. يرجى تحديد ملف كود.");
-        return;
-      }
-      socket.emit("runtime:run", {
-        code: activeFile.content || "",
-        fileName: activeFile.name,
-        language: activeFile.language || "typescript"
-      });
+    if (!socket || !socket.connected || !activeFile) return;
+
+    if (activeFile.type === "folder") {
+      alert("اختر ملفًا قابلًا للتشغيل أولًا.");
+      return;
     }
+
+    socket.emit("runtime:run", {
+      code: activeFile.content || "",
+      fileName: activeFile.name,
+      language: activeFile.language || "typescript"
+    });
   };
 
+  const handleFileSelect = (file: FileNode) => {
+    if (file.type === "folder") return;
+
+    openTab({
+      id: file.id,
+      name: file.name,
+      language: file.language
+    });
+  };
+
+  const handleSidebarResizeStart = useCallback(
+    (event: React.MouseEvent) => {
+      event.preventDefault();
+      isResizingSidebar.current = true;
+      const startX = event.clientX;
+      const startWidth = sidebarWidth;
+
+      const onMove = (moveEvent: MouseEvent) => {
+        if (!isResizingSidebar.current) return;
+        const delta = moveEvent.clientX - startX;
+        const nextWidth = Math.max(240, Math.min(420, startWidth + delta));
+        setSidebarWidth(nextWidth);
+      };
+
+      const onUp = () => {
+        isResizingSidebar.current = false;
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup", onUp);
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+      };
+
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
+    },
+    [sidebarWidth]
+  );
+
+  const handleTerminalResizeStart = useCallback(
+    (event: React.MouseEvent) => {
+      event.preventDefault();
+      isResizingTerminal.current = true;
+      const startY = event.clientY;
+      const startHeight = terminalHeight;
+
+      const onMove = (moveEvent: MouseEvent) => {
+        if (!isResizingTerminal.current) return;
+        const delta = startY - moveEvent.clientY;
+        const nextHeight = Math.max(180, Math.min(360, startHeight + delta));
+        setTerminalHeight(nextHeight);
+      };
+
+      const onUp = () => {
+        isResizingTerminal.current = false;
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup", onUp);
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+      };
+
+      document.body.style.cursor = "row-resize";
+      document.body.style.userSelect = "none";
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
+    },
+    [terminalHeight]
+  );
+
+  useEffect(() => {
+    if (!tabContextMenu) return;
+    const handler = () => setTabContextMenu(null);
+    document.addEventListener("click", handler);
+    return () => document.removeEventListener("click", handler);
+  }, [tabContextMenu]);
+
+  const activityItems = [
+    { label: "Prompt parsed", detail: prompt || "No brief", tone: "done" },
+    { label: "Workspace files", detail: `${fileCount} files seeded`, tone: "done" },
+    {
+      label: "Runtime bridge",
+      detail: termStatus === "disconnected" ? "Awaiting socket" : termStatus,
+      tone: termStatus === "disconnected" ? "queued" : "live"
+    },
+    { label: "Preview surface", detail: "Ready for deploy checks", tone: "live" }
+  ];
+
   return (
-    <div className="avant-workspace-shell">
-      {/* Top Navbar */}
-      <header className="workspace-header">
-        <div className="workspace-header__meta">
-          <span className="workspace-brand__dot" />
-          <span className="workspace-brand__text">Cloud IDE <span>ماكس</span></span>
-          <span className="workspace-divider" />
-          <span className="workspace-project-name">مشروع السحابة المتقدم (VFS)</span>
+    <div className="workspace-shell">
+      <header className="workspace-topbar">
+        <div className="workspace-topbar__brand">
+          <span className="brand brand--workspace">
+            <span className="brand__mark" />
+            <span className="brand__text">Cloud IDE</span>
+          </span>
+          <div className="workspace-topbar__titleblock">
+            <strong className="workspace-topbar__title">launchpad-studio</strong>
+            <span className="workspace-topbar__subtitle">Agent workspace inspired by Replit</span>
+          </div>
         </div>
-        
-        <div className="workspace-header__actions">
-          <button className="avant-btn avant-btn--ghost close-workspace-btn" onClick={onClose} aria-label="إغلاق مساحة العمل">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
+
+        <div className="workspace-topbar__modes" aria-label="أنماط العرض">
+          <button className="workspace-mode-pill workspace-mode-pill--active" type="button">
+            Editor
           </button>
-          <button className="workspace-deploy-btn" onClick={handleRunFile}>
-             اختبار التنفيذ (Run)
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 3l14 9-14 9V3z"/></svg>
+          <button className="workspace-mode-pill" type="button">
+            Preview
+          </button>
+          <button className="workspace-mode-pill" type="button">
+            Deploy
+          </button>
+        </div>
+
+        <div className="workspace-topbar__actions">
+          <button className="workspace-action" type="button">
+            <Share2 size={16} />
+            Share
+          </button>
+          <button className="workspace-action workspace-action--primary" type="button" onClick={handleRunFile}>
+            <Play size={16} />
+            Run
+          </button>
+          <button className="workspace-action" type="button" onClick={onClose} aria-label="إغلاق مساحة العمل">
+            <X size={16} />
           </button>
         </div>
       </header>
 
-      {/* Main Ide Split */}
-      <div className="workspace-grid" style={{ gridTemplateColumns: '260px 1fr 1fr' }}>
-        
-        {/* Sidebar - VFS Tree */}
-        <aside className="workspace-sidebar" style={{ background: '#09090b', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-          <div className="flex-1 overflow-hidden">
-             <FileExplorer onFileSelect={(file) => {
-               console.log("Selected file:", file.name);
-             }} />
-          </div>
-          <div className="sidebar-meta" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-            <h3 className="sidebar-title">توجيه التوليد الأساسي</h3>
-            <div className="prompt-display" dir="auto">
-               "{prompt}"
+      <div className="workspace-stage">
+        <nav className="workspace-rail" aria-label="أقسام مساحة العمل">
+          {railItems.map(({ label, icon: Icon, active }) => (
+            <button
+              key={label}
+              className={`workspace-rail__button ${active ? "workspace-rail__button--active" : ""}`}
+              type="button"
+              aria-label={label}
+            >
+              <Icon size={18} />
+            </button>
+          ))}
+        </nav>
+
+        <aside className="workspace-sidebar" style={{ width: sidebarWidth }}>
+          <section className="workspace-panel workspace-panel--tree">
+            <div className="workspace-panel__header">
+              <span className="workspace-panel__eyebrow">Explorer</span>
+              <h2 className="workspace-panel__title">Project files</h2>
             </div>
-            <div className="status-badge pulse-active">
-              <span className="status-badge__dot" style={{ background: termStatus === 'disconnected' ? '#ef4444' : '#10b981' }} />
-              {termStatus === "disconnected" ? "غير متصل بالمرساة" : termStatus}
+            <FileExplorer onFileSelect={handleFileSelect} />
+          </section>
+
+          <section className="workspace-panel workspace-brief">
+            <div className="workspace-panel__header">
+              <span className="workspace-panel__eyebrow">Build brief</span>
+              <h2 className="workspace-panel__title">Active prompt</h2>
             </div>
-          </div>
+
+            <p className="workspace-brief__prompt" dir="rtl">
+              {prompt || "صف المنتج المطلوب لبدء جلسة جديدة."}
+            </p>
+
+            <div className="workspace-brief__stats">
+              <article className="workspace-brief__stat">
+                <span className="workspace-brief__stat-label">Files</span>
+                <strong className="workspace-brief__stat-value">{fileCount}</strong>
+              </article>
+              <article className="workspace-brief__stat">
+                <span className="workspace-brief__stat-label">Tabs</span>
+                <strong className="workspace-brief__stat-value">{openTabs.length}</strong>
+              </article>
+              <article className="workspace-brief__stat">
+                <span className="workspace-brief__stat-label">Runtime</span>
+                <strong className="workspace-brief__stat-value">
+                  {termStatus === "disconnected" ? "Offline" : "Live"}
+                </strong>
+              </article>
+            </div>
+          </section>
+
+          <div className="resize-handle resize-handle--horizontal" onMouseDown={handleSidebarResizeStart} />
         </aside>
 
-        {/* Editor Pane */}
-        <div className="workspace-editor-pane">
-          <div className="pane-header">
-            <div className="pane-tabs">
-              {activeFile && activeFile.type === "file" ? (
-                 <div className="pane-tab active">
-                    {activeFile.name}
-                 </div>
-              ) : (
-                 <div className="pane-tab" style={{color: '#71717a'}}>
-                    لا يوجد ملف نشط
-                 </div>
-              )}
-            </div>
-          </div>
-          <div className="editor-container" style={{ background: '#1e1e1e' }}>
-            {activeFile && activeFile.type === "file" ? (
-              <Editor
-                height="100%"
-                language={activeFile.language || "plaintext"}
-                theme="cloud-max-theme"
-                value={activeFile.content || ""}
-                onChange={(newVal: string | undefined) => {
-                  if (newVal !== undefined) {
-                    updateFile(activeFile.id, { content: newVal });
-                  }
-                }}
-                beforeMount={((monaco) => {
-                   // ═══════════════════════════════════════════
-                   // CODE_EDITOR_ELITE: Theme & Language Config
-                   // ═══════════════════════════════════════════
-                   monaco.editor.defineTheme('cloud-max-theme', {
-                      base: 'vs-dark',
-                      inherit: true,
-                      rules: [
-                         // Core Syntax
-                         { token: 'comment', foreground: '52525b', fontStyle: 'italic' },
-                         { token: 'keyword', foreground: 'efb13f', fontStyle: 'bold' },
-                         { token: 'keyword.control', foreground: 'f59e0b' },
-                         { token: 'string', foreground: '34d399' },
-                         { token: 'string.escape', foreground: '6ee7b7' },
-                         { token: 'number', foreground: '60a5fa' },
-                         { token: 'number.hex', foreground: '93c5fd' },
-                         // Functions & Types
-                         { token: 'type', foreground: '38bdf8', fontStyle: 'italic' },
-                         { token: 'type.identifier', foreground: '7dd3fc' },
-                         { token: 'function', foreground: 'c084fc' },
-                         { token: 'function.declaration', foreground: 'a78bfa', fontStyle: 'bold' },
-                         // Variables & Operators
-                         { token: 'variable', foreground: 'e2e8f0' },
-                         { token: 'variable.predefined', foreground: 'fbbf24' },
-                         { token: 'constant', foreground: 'fb923c', fontStyle: 'bold' },
-                         { token: 'operator', foreground: 'f472b6' },
-                         // Tags (HTML/JSX)
-                         { token: 'tag', foreground: 'f87171' },
-                         { token: 'attribute.name', foreground: 'fbbf24' },
-                         { token: 'attribute.value', foreground: '34d399' },
-                         // Decorators & Meta
-                         { token: 'annotation', foreground: 'fb923c', fontStyle: 'italic' },
-                         { token: 'delimiter', foreground: '71717a' },
-                         { token: 'delimiter.bracket', foreground: '94a3b8' },
-                         // Regex
-                         { token: 'regexp', foreground: 'f472b6' },
-                      ],
-                      colors: {
-                         'editor.background': '#0c0c0e',
-                         'editor.foreground': '#d6d0c8',
-                         'editor.lineHighlightBackground': '#efb13f08',
-                         'editor.lineHighlightBorder': '#efb13f15',
-                         'editorCursor.foreground': '#efb13f',
-                         'editorCursor.background': '#000000',
-                         'editor.selectionBackground': '#efb13f25',
-                         'editor.selectionHighlightBackground': '#efb13f12',
-                         'editor.wordHighlightBackground': '#efb13f18',
-                         'editor.findMatchBackground': '#efb13f40',
-                         'editor.findMatchHighlightBackground': '#efb13f20',
-                         'editorIndentGuide.background': '#ffffff06',
-                         'editorIndentGuide.activeBackground': '#efb13f40',
-                         'editorBracketMatch.background': '#efb13f20',
-                         'editorBracketMatch.border': '#efb13f60',
-                         'editorWidget.background': '#18181b',
-                         'editorWidget.border': '#27272a',
-                         'editorSuggestWidget.background': '#18181b',
-                         'editorSuggestWidget.border': '#27272a',
-                         'editorSuggestWidget.selectedBackground': '#efb13f15',
-                         'editorSuggestWidget.highlightForeground': '#efb13f',
-                         'editorHoverWidget.background': '#18181b',
-                         'editorHoverWidget.border': '#27272a',
-                         'editorGutter.background': '#0c0c0e',
-                         'editorLineNumber.foreground': '#3f3f46',
-                         'editorLineNumber.activeForeground': '#efb13f',
-                      }
-                   });
+        <main className="workspace-main">
+          <div className="workspace-center-grid">
+            <section className="workspace-editor-stack">
+              <div className="workspace-toolbar">
+                <div className="workspace-toolbar__cluster">
+                  <span className="workspace-toolbar__chip">
+                    <Sparkles size={14} />
+                    Agent mode
+                  </span>
+                  <span className="workspace-toolbar__chip">
+                    <Rocket size={14} />
+                    Autosave
+                  </span>
+                </div>
 
-                   // ═══════════════════════════════════════════
-                   // CODE_EDITOR_ELITE: Custom Completion Provider
-                   // ═══════════════════════════════════════════
-                   const cloudSnippets = [
-                     { label: 'clf', insertText: 'const ${1:name} = (${2:params}) => {\n\t${3}\n};', detail: 'Arrow Function (Cloud Snippet)', kind: monaco.languages.CompletionItemKind.Snippet },
-                     { label: 'clcomp', insertText: 'export default function ${1:ComponentName}({ ${2:props} }: ${3:Props}) {\n\treturn (\n\t\t<div>\n\t\t\t${4}\n\t\t</div>\n\t);\n}', detail: 'React Component (Cloud Snippet)', kind: monaco.languages.CompletionItemKind.Snippet },
-                     { label: 'clstate', insertText: 'const [${1:state}, set${2:State}] = useState<${3:type}>(${4:initial});', detail: 'useState Hook (Cloud Snippet)', kind: monaco.languages.CompletionItemKind.Snippet },
-                     { label: 'cleffect', insertText: 'useEffect(() => {\n\t${1}\n\n\treturn () => {\n\t\t${2:// cleanup}\n\t};\n}, [${3}]);', detail: 'useEffect Hook (Cloud Snippet)', kind: monaco.languages.CompletionItemKind.Snippet },
-                     { label: 'clfetch', insertText: 'const response = await fetch("${1:url}", {\n\tmethod: "${2|GET,POST,PUT,DELETE|}",\n\theaders: { "Content-Type": "application/json" },\n\t${3:body: JSON.stringify(data)}\n});\nconst result = await response.json();', detail: 'Fetch API (Cloud Snippet)', kind: monaco.languages.CompletionItemKind.Snippet },
-                     { label: 'clzustand', insertText: 'export const use${1:Store} = create<${2:StoreType}>((set) => ({\n\t${3:state}: ${4:initialValue},\n\t${5:action}: (${6:params}) => set((state) => ({\n\t\t${7}\n\t})),\n}));', detail: 'Zustand Store (Cloud Snippet)', kind: monaco.languages.CompletionItemKind.Snippet },
-                     { label: 'cltry', insertText: 'try {\n\t${1}\n} catch (error) {\n\tconsole.error("[Cloud IDE Error]:", error);\n\t${2}\n}', detail: 'Try-Catch (Cloud Snippet)', kind: monaco.languages.CompletionItemKind.Snippet },
-                   ];
-
-                   // Register for TypeScript, JavaScript, Python
-                   ['typescript', 'javascript', 'typescriptreact', 'javascriptreact'].forEach(lang => {
-                     monaco.languages.registerCompletionItemProvider(lang, {
-                       provideCompletionItems: (model: any, position: any) => {
-                         const word = model.getWordUntilPosition(position);
-                         const range = {
-                           startLineNumber: position.lineNumber,
-                           endLineNumber: position.lineNumber,
-                           startColumn: word.startColumn,
-                           endColumn: word.endColumn
-                         };
-                         return {
-                           suggestions: cloudSnippets.map(s => ({
-                             ...s,
-                             range,
-                             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                           }))
-                         };
-                       }
-                     });
-                   });
-
-                }) as BeforeMount}
-                onMount={((editor, monaco) => {
-                   // ═══════════════════════════════════════════
-                   // CODE_EDITOR_ELITE: Runtime Keybindings & Focus
-                   // ═══════════════════════════════════════════
-                   editorRef.current = editor;
-
-                   // Ctrl+S / Cmd+S — Save (prevent browser default)
-                   editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
-                     console.log('[Cloud IDE] File saved:', activeFile?.name);
-                   });
-
-                   // Ctrl+D — Duplicate Line
-                   editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyD, () => {
-                     editor.getAction('editor.action.copyLinesDownAction')?.run();
-                   });
-
-                   // Auto-focus the editor on mount
-                   editor.focus();
-                }) as OnMount}
-                options={{
-                  minimap: { enabled: false },
-                  fontSize: 14,
-                  fontFamily: "'IBM Plex Mono', 'Cascadia Code', 'Fira Code', monospace",
-                  fontLigatures: true,
-                  padding: { top: 20, bottom: 20 },
-                  scrollBeyondLastLine: false,
-                  lineHeight: 1.7,
-                  letterSpacing: 0.3,
-                  cursorBlinking: "smooth",
-                  cursorSmoothCaretAnimation: "on",
-                  cursorWidth: 2,
-                  smoothScrolling: true,
-                  formatOnPaste: true,
-                  formatOnType: true,
-                  autoClosingBrackets: 'always',
-                  autoClosingQuotes: 'always',
-                  autoSurround: 'languageDefined',
-                  bracketPairColorization: { enabled: true, independentColorPoolPerBracketType: true },
-                  guides: { bracketPairs: true, bracketPairsHorizontal: true, indentation: true, highlightActiveIndentation: true },
-                  renderLineHighlight: "all",
-                  renderWhitespace: 'selection',
-                  suggestOnTriggerCharacters: true,
-                  quickSuggestions: { other: true, comments: false, strings: true },
-                  acceptSuggestionOnCommitCharacter: true,
-                  tabCompletion: 'on',
-                  parameterHints: { enabled: true, cycle: true },
-                  suggest: {
-                    showSnippets: true,
-                    showKeywords: true,
-                    showClasses: true,
-                    showFunctions: true,
-                    showVariables: true,
-                    showModules: true,
-                    insertMode: 'replace',
-                    preview: true,
-                    filterGraceful: true,
-                  },
-                  inlineSuggest: { enabled: true },
-                  stickyScroll: { enabled: true },
-                  linkedEditing: true,
-                  hideCursorInOverviewRuler: true,
-                  overviewRulerBorder: false,
-                  scrollbar: {
-                      vertical: 'auto',
-                      horizontal: 'auto',
-                      verticalScrollbarSize: 6,
-                      horizontalScrollbarSize: 6,
-                      useShadows: false,
-                  },
-                  mouseWheelZoom: true,
-                }}
-              />
-            ) : (
-              <div className="flex items-center justify-center h-full w-full opacity-30 select-none pointer-events-none">
-                 <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.5">
-                   <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                 </svg>
+                <div className="workspace-toolbar__meta">
+                  <strong className="workspace-toolbar__filename">{activeFile?.name || "Select a file"}</strong>
+                  <span className="workspace-toolbar__branch">launch/main</span>
+                </div>
               </div>
-            )}
-          </div>
-        </div>
 
-        {/* Console / Preview Split (Vertical) */}
-        <div className="workspace-preview-pane">
-          <div className="pane-header">
-            <span className="preview-label">وحدة التوجيه الطرفية (Terminal)</span>
-            <div className="preview-controls">
-              <span style={{color: 'var(--accent)'}}>{termStatus === 'connected' ? 'متصل عتادياً' : termStatus}</span>
-            </div>
+              <div className="workspace-editor-surface">
+                <EditorTabs
+                  onTabContextMenu={(event, tab) => {
+                    setTabContextMenu({ x: event.clientX, y: event.clientY, tabId: tab.id });
+                  }}
+                />
+
+                <Breadcrumb fileId={activeTabId} />
+
+                <div className="editor-container">
+                  {activeFile && activeFile.type === "file" ? (
+                    <Editor
+                      height="100%"
+                      language={activeFile.language || "plaintext"}
+                      theme="cloud-max-theme"
+                      value={activeFile.content || ""}
+                      onChange={(newValue: string | undefined) => {
+                        if (newValue === undefined) return;
+                        updateFile(activeFile.id, { content: newValue });
+                        markDirty(activeFile.id, true);
+                      }}
+                      beforeMount={((monaco) => {
+                        monaco.editor.defineTheme("cloud-max-theme", {
+                          base: "vs-dark",
+                          inherit: true,
+                          rules: [
+                            { token: "comment", foreground: "6b7280", fontStyle: "italic" },
+                            { token: "keyword", foreground: "ff8b5f", fontStyle: "bold" },
+                            { token: "string", foreground: "7dd3fc" },
+                            { token: "number", foreground: "f7b267" },
+                            { token: "type", foreground: "c084fc" },
+                            { token: "function", foreground: "fde68a" },
+                            { token: "variable", foreground: "f3f4f6" },
+                            { token: "operator", foreground: "fca5a5" },
+                            { token: "tag", foreground: "f472b6" },
+                            { token: "attribute.name", foreground: "f9a8d4" },
+                            { token: "attribute.value", foreground: "93c5fd" }
+                          ],
+                          colors: {
+                            "editor.background": "#12161f",
+                            "editor.foreground": "#edf1f7",
+                            "editor.lineHighlightBackground": "#1a202d",
+                            "editorCursor.foreground": "#ff6a2b",
+                            "editor.selectionBackground": "#ff6a2b25",
+                            "editorIndentGuide.background": "#ffffff10",
+                            "editorIndentGuide.activeBackground": "#ffffff22",
+                            "editorWidget.background": "#171c26",
+                            "editorWidget.border": "#2b3240",
+                            "editorSuggestWidget.background": "#171c26",
+                            "editorSuggestWidget.border": "#2b3240",
+                            "editorSuggestWidget.selectedBackground": "#232b38",
+                            "editorHoverWidget.background": "#171c26",
+                            "editorHoverWidget.border": "#2b3240",
+                            "editorGutter.background": "#12161f",
+                            "editorLineNumber.foreground": "#566071",
+                            "editorLineNumber.activeForeground": "#f5f7fb"
+                          }
+                        });
+                      }) as BeforeMount}
+                      onMount={((editor, monaco) => {
+                        editorRef.current = editor;
+                        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+                          if (activeFile) markDirty(activeFile.id, false);
+                        });
+                        editor.focus();
+                      }) as OnMount}
+                      options={{
+                        minimap: { enabled: false },
+                        fontSize: 14,
+                        fontFamily: "'IBM Plex Mono', 'Cascadia Code', monospace",
+                        fontLigatures: true,
+                        padding: { top: 18, bottom: 24 },
+                        scrollBeyondLastLine: false,
+                        lineHeight: 1.75,
+                        letterSpacing: 0.2,
+                        cursorBlinking: "smooth",
+                        cursorSmoothCaretAnimation: "on",
+                        smoothScrolling: true,
+                        formatOnPaste: true,
+                        formatOnType: true,
+                        autoClosingBrackets: "always",
+                        autoClosingQuotes: "always",
+                        guides: { bracketPairs: true, indentation: true, highlightActiveIndentation: true },
+                        renderLineHighlight: "all",
+                        renderWhitespace: "selection",
+                        stickyScroll: { enabled: true },
+                        linkedEditing: true,
+                        scrollbar: {
+                          vertical: "auto",
+                          horizontal: "auto",
+                          verticalScrollbarSize: 8,
+                          horizontalScrollbarSize: 8,
+                          useShadows: false
+                        }
+                      }}
+                    />
+                  ) : (
+                    <div className="editor-empty-state">
+                      <LayoutPanelLeft size={44} />
+                      <span>اختر ملفًا من الشجرة لبدء التحرير.</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
+
+            <aside className="workspace-sidepanel">
+              <section className="sidecard">
+                <div className="sidecard__header">
+                  <span className="sidecard__eyebrow">Preview</span>
+                  <h3 className="sidecard__title">Launch surface</h3>
+                </div>
+
+                <div className="preview-browser">
+                  <div className="preview-browser__bar">
+                    <span className="preview-browser__dot" />
+                    <span className="preview-browser__dot" />
+                    <span className="preview-browser__dot" />
+                  </div>
+                  <div className="preview-browser__surface">
+                    <div className="preview-browser__panel" />
+                    <div className="preview-browser__chart" />
+                    <div className="preview-browser__metric">
+                      <span className="preview-browser__metric-label">Conversion</span>
+                      <strong className="preview-browser__metric-value">31.4%</strong>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section className="sidecard">
+                <div className="sidecard__header">
+                  <span className="sidecard__eyebrow">Agent plan</span>
+                  <h3 className="sidecard__title">Execution feed</h3>
+                </div>
+
+                <div className="activity-list">
+                  {activityItems.map((item) => (
+                    <div key={item.label} className="activity-list__item">
+                      <span className={`activity-list__status activity-list__status--${item.tone}`}>
+                        <CircleDot size={12} />
+                      </span>
+                      <div>
+                        <strong>{item.label}</strong>
+                        <span>{item.detail}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section className="sidecard">
+                <div className="sidecard__header">
+                  <span className="sidecard__eyebrow">Collaborators</span>
+                  <h3 className="sidecard__title">Live room</h3>
+                </div>
+
+                <div className="workspace-collaborators">
+                  {collaboratorNames.map((name) => (
+                    <span key={name} className="collaborator-pill">
+                      <UsersRound size={13} />
+                      {name}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            </aside>
           </div>
-          
-          <div className="preview-container" style={{ padding: '0.5rem', background: '#000' }}>
-            <Terminal socket={socket} />
+
+          <div className="resize-handle resize-handle--vertical" onMouseDown={handleTerminalResizeStart} />
+
+          <div className="workspace-console-row" style={{ height: terminalHeight }}>
+            <section className="terminal-shell">
+              <div className="workspace-panel__header">
+                <span className="workspace-panel__eyebrow">Runtime</span>
+                <h2 className="workspace-panel__title">Console</h2>
+              </div>
+              <Terminal socket={socket} />
+            </section>
           </div>
-        </div>
+
+          <footer className="statusbar">
+            <span className="statusbar__item">
+              <span className={`status-dot ${termStatus === "disconnected" ? "status-dot--off" : ""}`} />
+              {termStatus === "disconnected" ? "Socket offline" : "Socket live"}
+            </span>
+            <span className="statusbar__item">UTF-8</span>
+            <span className="statusbar__item">TypeScript React</span>
+            <span className="statusbar__item">Autosave on</span>
+          </footer>
+        </main>
       </div>
+
+      {tabContextMenu && (
+        <div
+          className="tab-context-menu"
+          style={{ left: tabContextMenu.x, top: tabContextMenu.y }}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <button onClick={() => { closeTab(tabContextMenu.tabId); setTabContextMenu(null); }}>
+            إغلاق
+          </button>
+          <button onClick={() => { closeOtherTabs(tabContextMenu.tabId); setTabContextMenu(null); }}>
+            إغلاق البقية
+          </button>
+          <button onClick={() => { closeAllTabs(); setTabContextMenu(null); }}>
+            إغلاق الكل
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,0 +1,23 @@
+
+> dev
+> tsx watch src/index.ts
+
+cloud-ide server listening on http://localhost:8787
+D:\Cloud-IDE\node_modules\node-pty\src\conpty_console_list_agent.ts:13
+const consoleProcessList = getConsoleProcessList(shellPid);
+                           ^
+
+
+Error: AttachConsole failed
+    at Object.<anonymous> (D:\Cloud-IDE\node_modules\node-pty\src\conpty_console_list_agent.ts:13:28)
+    at Module._compile (node:internal/modules/cjs/loader:1521:14)
+    at Object.transformer (D:\Cloud-IDE\node_modules\tsx\dist\register-D46fvsV_.cjs:3:1104)
+    at Module.load (node:internal/modules/cjs/loader:1266:32)
+    at Module._load (node:internal/modules/cjs/loader:1091:12)
+    at cjsLoader (node:internal/modules/esm/translators:298:15)
+    at ModuleWrap.<anonymous> (node:internal/modules/esm/translators:240:7)
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.20.0

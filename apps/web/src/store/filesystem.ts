@@ -51,28 +51,65 @@ const uid = () => Math.random().toString(36).substring(2, 9) + Date.now().toStri
 const initialData: FileNode[] = [
   {
     id: "root",
-    name: "\u0645\u0634\u0631\u0648\u0639 \u0627\u0644\u0633\u062D\u0627\u0628\u0629",
+    name: "launchpad-studio",
     type: "folder",
     createdAt: Date.now(),
-    permissions: 'admin',
+    permissions: "admin",
     children: [
       {
-        id: "1",
-        name: "main.ts",
+        id: "app-entry",
+        name: "app.tsx",
         type: "file",
-        language: "typescript",
+        language: "typescriptreact",
         createdAt: Date.now(),
         modifiedAt: Date.now(),
-        content: `console.log("Welcome to Cloud IDE Max - Runtime Environment.");\\n\\nconst time = new Date().toLocaleTimeString('ar-IQ');\\nconsole.log(\\\`\u0627\u0644\u062A\u0648\u0642\u064A\u062A \u0627\u0644\u062D\u0627\u0644\u064A \u0644\u0644\u062A\u0634\u063A\u064A\u0644: \\\${time}\\\`);`
+        content: `export default function App() {
+  return (
+    <main className="shell">
+      <section className="hero">
+        <span className="eyebrow">Agent workspace</span>
+        <h1>Launch your internal operations hub.</h1>
+        <p>Realtime data, guided onboarding, and multi-role permissions.</p>
+      </section>
+    </main>
+  );
+}`
       },
       {
-        id: "2",
-        name: "scratch.py",
+        id: "theme-file",
+        name: "theme.css",
         type: "file",
-        language: "python",
+        language: "css",
         createdAt: Date.now(),
         modifiedAt: Date.now(),
-        content: `print("Python 3 environment active.")\\n\\ndef calculate_cloud_speed(factor):\\n    return factor * 100\\n\\nprint("Speed measure:", calculate_cloud_speed(10))`
+        content: `:root {
+  --bg: #0f1115;
+  --panel: #161a22;
+  --accent: #ff5b1f;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: #f7f4ef;
+  font-family: "IBM Plex Sans Arabic", sans-serif;
+}`
+      },
+      {
+        id: "package-file",
+        name: "package.json",
+        type: "file",
+        language: "json",
+        createdAt: Date.now(),
+        modifiedAt: Date.now(),
+        content: `{
+  "name": "launchpad-studio",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  }
+}`
       },
       {
         id: "src-folder",
@@ -81,15 +118,45 @@ const initialData: FileNode[] = [
         createdAt: Date.now(),
         children: [
           {
-            id: "3",
-            name: "utils.js",
+            id: "agent-file",
+            name: "agent.ts",
             type: "file",
-            language: "javascript",
+            language: "typescript",
             createdAt: Date.now(),
             modifiedAt: Date.now(),
-            content: `export const isAvantGarde = () => true;`
+            content: `export const agentBrief = {
+  goal: "Build an operations workspace",
+  audience: ["ops", "support", "leadership"],
+  status: "ready-for-preview",
+};`
+          },
+          {
+            id: "data-file",
+            name: "data.ts",
+            type: "file",
+            language: "typescript",
+            createdAt: Date.now(),
+            modifiedAt: Date.now(),
+            content: `export const metrics = [
+  { label: "Active customers", value: 1280 },
+  { label: "Escalations", value: 12 },
+  { label: "Weekly growth", value: "18%" },
+];`
           }
         ]
+      },
+      {
+        id: "notes-file",
+        name: "build-notes.md",
+        type: "file",
+        language: "markdown",
+        createdAt: Date.now(),
+        modifiedAt: Date.now(),
+        content: `# Build notes
+
+- Keep the shell prompt-first.
+- Make the editor feel production ready.
+- Surface deploy status beside runtime logs.`
       }
     ]
   }
@@ -202,7 +269,7 @@ const deepClone = (node: FileNode): FileNode => {
 export const useFileSystem = create<FileSystemState>((set, get) => ({
   data: initialData,
   trash: [],
-  activeFileId: "1",
+  activeFileId: "app-entry",
   searchQuery: '',
   contextMenu: null,
   
