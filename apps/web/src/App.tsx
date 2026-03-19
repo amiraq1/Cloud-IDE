@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import CloudComposer from "./components/CloudComposer";
 import Workspace from "./components/Workspace";
+import { useFileSystem } from "./store/filesystem";
 
 const navLinks = ["المنتج", "الفرق", "التسعير", "المستندات"];
 
@@ -50,7 +51,7 @@ function App() {
     "فتح مساحة العمل الجاهزة للتنفيذ..."
   ];
 
-  const handleGenerate = (prompt: string) => {
+  const handleGenerate = async (prompt: string) => {
     const trimmed = prompt.trim();
     if (!trimmed) return;
 
@@ -58,16 +59,39 @@ function App() {
     setAppState("generating");
     setLoadingStep(0);
 
-    let step = 0;
-    const interval = window.setInterval(() => {
-      step += 1;
-      setLoadingStep(step);
+    try {
+      // Initialize generation
+      // 1. Fetch from Fastify server locally
+      // Switch this URL dynamically using env vars in production.
+      const functionUrl = import.meta.env.VITE_API_URL || "http://localhost:8787/api/generate";
+      
+      const response = await fetch(functionUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: trimmed }),
+      });
 
-      if (step >= loadingSequence.length) {
-        window.clearInterval(interval);
-        window.setTimeout(() => setAppState("workspace"), 500);
+      if (!response.ok) {
+        throw new Error("فشل الاتصال بنموذج التوليد");
       }
-    }, 820);
+
+      setLoadingStep(1); // Preparing files
+      const data = await response.json();
+      
+      if (data.fileTree) {
+        // Inject real files into the Zustand store
+        useFileSystem.getState().setData(data.fileTree);
+      }
+      
+      setLoadingStep(3); // Opening workspace
+      window.setTimeout(() => setAppState("workspace"), 600);
+
+    } catch (error) {
+      console.error("Agent failed:", error);
+      alert("تعذر توليد مساحة العمل. تأكد من عمل خادم Node.js ومفاتيح الـ API.");
+      setAppState("landing");
+      setLoadingStep(0);
+    }
   };
 
   const handleCloseWorkspace = () => {

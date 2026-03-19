@@ -362,18 +362,6 @@ export default function Workspace({ prompt, onClose }: WorkspaceProps) {
           </div>
         </div>
 
-        <div className="workspace-topbar__modes" aria-label="أنماط العرض">
-          <button className="workspace-mode-pill workspace-mode-pill--active" type="button">
-            Editor
-          </button>
-          <button className="workspace-mode-pill" type="button">
-            Preview
-          </button>
-          <button className="workspace-mode-pill" type="button">
-            Deploy
-          </button>
-        </div>
-
         <div className="workspace-topbar__actions">
           <button className="workspace-action" type="button">
             <Share2 size={16} />
@@ -395,18 +383,6 @@ export default function Workspace({ prompt, onClose }: WorkspaceProps) {
       </header>
 
       <div className="workspace-stage">
-        <nav className="workspace-rail" aria-label="أقسام مساحة العمل">
-          {railItems.map(({ label, icon: Icon, active }) => (
-            <button
-              key={label}
-              className={`workspace-rail__button ${active ? "workspace-rail__button--active" : ""}`}
-              type="button"
-              aria-label={label}
-            >
-              <Icon size={18} />
-            </button>
-          ))}
-        </nav>
 
         <aside className="workspace-sidebar" style={{ width: sidebarWidth }}>
           <section className="workspace-panel workspace-panel--tree">
@@ -417,34 +393,6 @@ export default function Workspace({ prompt, onClose }: WorkspaceProps) {
             <FileExplorer onFileSelect={handleFileSelect} />
           </section>
 
-          <section className="workspace-panel workspace-brief">
-            <div className="workspace-panel__header">
-              <span className="workspace-panel__eyebrow">Build brief</span>
-              <h2 className="workspace-panel__title">Active prompt</h2>
-            </div>
-
-            <p className="workspace-brief__prompt" dir="rtl">
-              {prompt || "صف المنتج المطلوب لبدء جلسة جديدة."}
-            </p>
-
-            <div className="workspace-brief__stats">
-              <article className="workspace-brief__stat">
-                <span className="workspace-brief__stat-label">Files</span>
-                <strong className="workspace-brief__stat-value">{fileCount}</strong>
-              </article>
-              <article className="workspace-brief__stat">
-                <span className="workspace-brief__stat-label">Tabs</span>
-                <strong className="workspace-brief__stat-value">{openTabs.length}</strong>
-              </article>
-              <article className="workspace-brief__stat">
-                <span className="workspace-brief__stat-label">Runtime</span>
-                <strong className="workspace-brief__stat-value">
-                  {runtimeSummary}
-                </strong>
-              </article>
-            </div>
-          </section>
-
           <div className="resize-handle resize-handle--horizontal" onMouseDown={handleSidebarResizeStart} />
         </aside>
 
@@ -452,20 +400,8 @@ export default function Workspace({ prompt, onClose }: WorkspaceProps) {
           <div className="workspace-center-grid">
             <section className="workspace-editor-stack">
               <div className="workspace-toolbar">
-                <div className="workspace-toolbar__cluster">
-                  <span className="workspace-toolbar__chip">
-                    <Sparkles size={14} />
-                    Agent mode
-                  </span>
-                  <span className="workspace-toolbar__chip">
-                    <Rocket size={14} />
-                    Autosave
-                  </span>
-                </div>
-
                 <div className="workspace-toolbar__meta">
                   <strong className="workspace-toolbar__filename">{activeFile?.name || "Select a file"}</strong>
-                  <span className="workspace-toolbar__branch">launch/main</span>
                 </div>
               </div>
 
@@ -575,67 +511,7 @@ export default function Workspace({ prompt, onClose }: WorkspaceProps) {
               </div>
             </section>
 
-            <aside className="workspace-sidepanel">
-              <section className="sidecard">
-                <div className="sidecard__header">
-                  <span className="sidecard__eyebrow">Preview</span>
-                  <h3 className="sidecard__title">Launch surface</h3>
-                </div>
 
-                <div className="preview-browser">
-                  <div className="preview-browser__bar">
-                    <span className="preview-browser__dot" />
-                    <span className="preview-browser__dot" />
-                    <span className="preview-browser__dot" />
-                  </div>
-                  <div className="preview-browser__surface">
-                    <div className="preview-browser__panel" />
-                    <div className="preview-browser__chart" />
-                    <div className="preview-browser__metric">
-                      <span className="preview-browser__metric-label">Conversion</span>
-                      <strong className="preview-browser__metric-value">31.4%</strong>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              <section className="sidecard">
-                <div className="sidecard__header">
-                  <span className="sidecard__eyebrow">Agent plan</span>
-                  <h3 className="sidecard__title">Execution feed</h3>
-                </div>
-
-                <div className="activity-list">
-                  {activityItems.map((item) => (
-                    <div key={item.label} className="activity-list__item">
-                      <span className={`activity-list__status activity-list__status--${item.tone}`}>
-                        <CircleDot size={12} />
-                      </span>
-                      <div>
-                        <strong>{item.label}</strong>
-                        <span>{item.detail}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-
-              <section className="sidecard">
-                <div className="sidecard__header">
-                  <span className="sidecard__eyebrow">Collaborators</span>
-                  <h3 className="sidecard__title">Live room</h3>
-                </div>
-
-                <div className="workspace-collaborators">
-                  {collaboratorNames.map((name) => (
-                    <span key={name} className="collaborator-pill">
-                      <UsersRound size={13} />
-                      {name}
-                    </span>
-                  ))}
-                </div>
-              </section>
-            </aside>
           </div>
 
           <div className="resize-handle resize-handle--vertical" onMouseDown={handleTerminalResizeStart} />
@@ -655,9 +531,6 @@ export default function Workspace({ prompt, onClose }: WorkspaceProps) {
               <span className={`status-dot ${runtimeIsLive ? "" : "status-dot--off"}`} />
               Runtime {runtimeSummary}
             </span>
-            <span className="statusbar__item">UTF-8</span>
-            <span className="statusbar__item">TypeScript React</span>
-            <span className="statusbar__item">Autosave on</span>
           </footer>
         </main>
       </div>

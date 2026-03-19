@@ -29,6 +29,114 @@ app.get("/api/session", async () => ({
   ]
 }));
 
+const SYSTEM_PROMPT = `أنت مهندس واجهات أمامية طليعي (Avant-Garde UI Designer).
+مهمتك توليد شجرة ملفات (FileTree) كاملة لمشروع ويب مبني بـ React (TSX) استجابة لوصف المستخدم.
+- يجب أن يكون الجذر عبارة عن مجلد واحد يحتوي بداخله جميع ملفات المشروع.
+- قم بكتابة CSS عصري وغير نمطي مع مؤثرات Glassmorphism وعناصر تباعد فاخرة.
+- ركز على استخدام 'lucide-react' للأيقونات.
+- المخرج يجب أن يكون JSON Array صالح ومطابق للهيكل.
+لا تضع أي نصوص كتعليق خارج مصفوفة الـ JSON.`;
+
+app.post("/api/generate", async (request, reply) => {
+  try {
+    const { prompt } = request.body as any;
+    if (!prompt) return reply.code(400).send({ error: "Missing prompt" });
+
+    // Use hardcoded key from the user's setup or process.env
+    const apiKey = process.env.NVIDIA_API_KEY || "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";
+    const apiUrl = "https://integrate.api.nvidia.com/v1/chat/completions";
+    const modelToUse = "meta/llama-3.1-70b-instruct";
+
+    const llmResponse = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: modelToUse,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: `قم ببناء بيئة عمل للمتطلبات التالية: ${prompt}` }
+        ],
+        temperature: 0.2,
+        max_tokens: 4000,
+        response_format: { type: "json_object" }
+      })
+    });
+
+    if (!llmResponse.ok) {
+      throw new Error(await llmResponse.text());
+    }
+
+    const llmData = await llmResponse.json();
+    let fileTreeContent = llmData.choices[0]?.message?.content || "[]";
+    
+    // Parse the result safely
+    let parsedTree: any[] = [];
+    try {
+      const parsed = JSON.parse(fileTreeContent);
+      if (Array.isArray(parsed)) {
+        parsedTree = parsed;
+      } else if (parsed.fileTree && Array.isArray(parsed.fileTree)) {
+        parsedTree = parsed.fileTree;
+      } else if (parsed.files && Array.isArray(parsed.files)) {
+        parsedTree = parsed.files;
+      } else if (typeof parsed === 'object') {
+        parsedTree = [parsed];
+      }
+    } catch(e) {
+      console.error("JSON parse error:", e);
+      parsedTree = [];
+    }
+
+    // Code Sanitizer Helper for LLM markdown artifacts
+    function sanitizeContent(code?: string): string | undefined {
+      if (typeof code !== "string") return code;
+      
+      let clean = code;
+      // Strip markdown code block wrappings sometimes leaked inside JSON
+      const markdownRegex = /^```[\w-]*\n([\s\S]*?)\n```$/gm;
+      const match = markdownRegex.exec(clean.trim());
+      if (match && match[1]) {
+        clean = match[1];
+      } else {
+        // Fallback for dangling code blocks
+        clean = clean.replace(/^```[\w-]*\n?/g, "").replace(/\n?```$/g, "");
+      }
+      
+      // Auto-fix some known React syntax/import hallucinations
+      clean = clean.replace(/import\s+React.*?;\n/g, ""); // Modern React doesn't need 'import React'
+      
+      return clean.trim() === "" ? code : clean;
+    }
+
+    // Recursively inject 'id', 'createdAt', 'modifiedAt' and sanitize logic
+    let idCounter = 1;
+    function finalizeTree(nodes: any[]): any[] {
+      return nodes.map(node => {
+        const id = node.id || `node-${Date.now()}-${idCounter++}-${Math.random().toString(36).slice(2, 6)}`;
+        return {
+          ...node,
+          id,
+          type: node.type || (node.children ? 'folder' : 'file'),
+          createdAt: Date.now(),
+          modifiedAt: Date.now(),
+          content: sanitizeContent(node.content),
+          children: node.children && Array.isArray(node.children) ? finalizeTree(node.children) : undefined,
+        };
+      });
+    }
+
+    const finalTree = finalizeTree(parsedTree);
+
+    return reply.send({ fileTree: finalTree });
+  } catch (err: any) {
+    console.error("LLM Generation Error:", err);
+    return reply.code(500).send({ error: "Failed to generate plan: " + err.message });
+  }
+});
+
 const runtime = createDockerRuntimeController();
 
 function formatTerminalLine(payload: { kind: "stdout" | "stderr" | "system" | "stdin"; text: string; raw?: boolean }) {
