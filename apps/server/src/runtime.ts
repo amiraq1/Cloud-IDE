@@ -4,7 +4,7 @@ type FeedTone = "info" | "success" | "warning";
 
 export interface RuntimeBridge {
   emitFeed: (payload: { title: string; meta: string; tone: FeedTone }) => void;
-  emitLine: (payload: { kind: RuntimeLineKind; text: string }) => void;
+  emitLine: (payload: { kind: RuntimeLineKind; text: string; raw?: boolean }) => void;
   emitStatus: (payload: { status: RuntimeStatus; detail: string }) => void;
 }
 

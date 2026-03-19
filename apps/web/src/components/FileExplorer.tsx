@@ -28,14 +28,16 @@ const ContextMenu = ({
   x,
   y,
   nodeId,
+  onOpenFile,
   onClose
 }: {
   x: number;
   y: number;
   nodeId: string;
+  onOpenFile: (file: FileNode) => void;
   onClose: () => void;
 }) => {
-  const { softDelete, duplicateFile, findNode, data, setActiveFile, updateFile } = useFileSystem();
+  const { softDelete, duplicateFile, findNode, data, updateFile } = useFileSystem();
   const node = findNode(data, nodeId);
   const isFolder = node?.type === "folder";
 
@@ -53,7 +55,9 @@ const ContextMenu = ({
             label: "فتح",
             icon: <FileIcon size={13} />,
             action: () => {
-              setActiveFile(nodeId);
+              if (node && node.type === "file") {
+                onOpenFile(node);
+              }
               onClose();
             }
           },
@@ -405,6 +409,7 @@ export default function FileExplorer({ onFileSelect }: FileExplorerProps) {
           x={contextMenu.x}
           y={contextMenu.y}
           nodeId={contextMenu.nodeId}
+          onOpenFile={onFileSelect}
           onClose={() => setContextMenu(null)}
         />
       )}

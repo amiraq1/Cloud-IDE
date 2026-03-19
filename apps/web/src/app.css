@@ -731,6 +731,18 @@ textarea:focus-visible {
   gap: 8px;
 }
 
+.workspace-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.workspace-action:disabled:hover,
+.workspace-action:disabled:focus-visible {
+  background: inherit;
+  transform: none;
+}
+
 .workspace-stage {
   display: flex;
   flex: 1;

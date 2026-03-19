@@ -1,14 +1,8 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import { Server } from "socket.io";
-// import { createMockRuntimeController, type RunRequest } from "./runtime.js";
+import type { RuntimeBridge, RunRequest } from "./runtime.js";
 import { createDockerRuntimeController } from "./docker.js";
-
-interface RunRequest {
-  code: string;
-  fileName: string;
-  language: string;
-}
 
 const app = Fastify({
   logger: false
@@ -37,6 +31,32 @@ app.get("/api/session", async () => ({
 
 const runtime = createDockerRuntimeController();
 
+function formatTerminalLine(payload: { kind: "stdout" | "stderr" | "system" | "stdin"; text: string; raw?: boolean }) {
+  if (payload.raw) {
+    return payload.text;
+  }
+
+  let prefix = "";
+
+  switch (payload.kind) {
+    case "system":
+      prefix = "\x1b[34m[sys]\x1b[0m ";
+      break;
+    case "stderr":
+      prefix = "\x1b[31;1m[err]\x1b[0m ";
+      break;
+    case "stdin":
+      prefix = "\x1b[35m[in]\x1b[0m ";
+      break;
+    case "stdout":
+    default:
+      prefix = "\x1b[32m[out]\x1b[0m ";
+      break;
+  }
+
+  return `${prefix}${payload.text}${/[\r\n]$/.test(payload.text) ? "" : "\r\n"}`;
+}
+
 const io = new Server(app.server, {
   cors: {
     origin: true
@@ -44,22 +64,22 @@ const io = new Server(app.server, {
 });
 
 io.on("connection", (socket) => {
-  const bridge = {
-    emitFeed: (payload: { title: string; meta: string; tone: "info" | "success" | "warning" }) => {
+  const bridge: RuntimeBridge = {
+    emitFeed: (payload) => {
       socket.emit("runtime:feed", payload);
     },
-    emitLine: (payload: { kind: "stdout" | "stderr" | "system" | "stdin"; text: string }) => {
-      // Direct raw PTY data to the new pty:data event for Xterm.js
-      socket.emit("pty:data", { data: payload.text }); 
+    emitLine: (payload) => {
+      socket.emit("pty:data", { data: formatTerminalLine(payload) });
     },
-    emitStatus: (payload: { status: "idle" | "queued" | "running"; detail: string }) => {
+    emitStatus: (payload) => {
       socket.emit("runtime:status", payload);
     }
   };
 
   bridge.emitLine({
     kind: "system",
-    text: "\r\n\x1b[36m❖ Cloud IDE Core attached.\x1b[0m\r\n"
+    text: "\r\n\x1b[36m* Cloud IDE Core attached.\x1b[0m\r\n",
+    raw: true
   });
   bridge.emitStatus({
     status: "idle",
@@ -73,15 +93,21 @@ io.on("connection", (socket) => {
       language: payload.language ?? "typescript"
     };
 
-    runtime.run(socket.id, request, bridge as any);
+    Promise.resolve(runtime.run(socket.id, request, bridge)).catch((error) => {
+      bridge.emitLine({
+        kind: "stderr",
+        text: `Runner failure: ${error instanceof Error ? error.message : String(error)}`
+      });
+      bridge.emitStatus({ status: "idle", detail: "Runner failed" });
+    });
   });
 
   socket.on("terminal:input", (payload: { data?: string }) => {
-    runtime.receiveInput(socket.id, payload.data ?? "", bridge as any);
+    runtime.receiveInput(socket.id, payload.data ?? "", bridge);
   });
 
   socket.on("disconnect", () => {
-    runtime.disconnect(socket.id);
+    void Promise.resolve(runtime.disconnect(socket.id));
   });
 });
 

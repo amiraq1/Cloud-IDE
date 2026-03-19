@@ -40,13 +40,44 @@ const railItems: Array<{ label: string; icon: LucideIcon; active?: boolean }> = 
 
 const collaboratorNames = ["Rana", "Omar", "Mina"];
 
-function getRuntimeSocketUrl() {
+type RuntimeConnectionState = "checking" | "connecting" | "connected" | "disconnected" | "unavailable";
+type SupportedRuntimeLanguage = "typescript" | "javascript" | "python" | "bash";
+
+function getRuntimeOrigin() {
+  const configuredOrigin = import.meta.env.VITE_RUNTIME_ORIGIN?.trim();
+  if (configuredOrigin) {
+    return configuredOrigin.replace(/\/$/, "");
+  }
+
   if (typeof window === "undefined") {
     return "http://localhost:8787";
   }
 
-  const protocol = window.location.protocol === "https:" ? "https" : "http";
-  return `${protocol}://${window.location.hostname}:8787`;
+  return window.location.origin;
+}
+
+function getRuntimeHealthUrl(runtimeOrigin: string) {
+  if (typeof window !== "undefined" && runtimeOrigin === window.location.origin) {
+    return "/api/health";
+  }
+
+  return `${runtimeOrigin}/api/health`;
+}
+
+function resolveRuntimeLanguage(language?: string): SupportedRuntimeLanguage | null {
+  switch (language) {
+    case "typescript":
+      return "typescript";
+    case "javascript":
+      return "javascript";
+    case "python":
+      return "python";
+    case "bash":
+    case "shell":
+      return "bash";
+    default:
+      return null;
+  }
 }
 
 function findNode(nodes: FileNode[], id: string): FileNode | undefined {
@@ -77,7 +108,9 @@ export default function Workspace({ prompt, onClose }: WorkspaceProps) {
   const isResizingSidebar = useRef(false);
   const isResizingTerminal = useRef(false);
   const [socket, setSocket] = useState<Socket | null>(null);
-  const [termStatus, setTermStatus] = useState("connecting");
+  const [runtimeConnectionState, setRuntimeConnectionState] = useState<RuntimeConnectionState>("checking");
+  const [runtimePhase, setRuntimePhase] = useState<"idle" | "queued" | "running" | null>(null);
+  const [runtimeDetail, setRuntimeDetail] = useState("Checking runtime bridge...");
   const [tabContextMenu, setTabContextMenu] = useState<{
     x: number;
     y: number;
@@ -92,32 +125,54 @@ export default function Workspace({ prompt, onClose }: WorkspaceProps) {
 
   const currentFileId = activeTabId || activeFileId;
   const activeFile = currentFileId ? findNode(data, currentFileId) : undefined;
+  const activeRuntimeLanguage = activeFile?.type === "file" ? resolveRuntimeLanguage(activeFile.language) : null;
   const fileCount = countFiles(data);
+  const runtimeIsLive = runtimeConnectionState === "connected";
+  const runtimeSummary =
+    runtimeConnectionState === "connected"
+      ? runtimePhase === "running"
+        ? "Running"
+        : runtimePhase === "queued"
+          ? "Queued"
+          : "Live"
+      : runtimeConnectionState === "checking" || runtimeConnectionState === "connecting"
+        ? "Connecting"
+        : "Offline";
+  const canRunActiveFile = Boolean(socket?.connected && activeFile?.type === "file" && activeRuntimeLanguage);
 
   useEffect(() => {
     let disposed = false;
-    const runtimeUrl = getRuntimeSocketUrl();
+    const runtimeOrigin = getRuntimeOrigin();
+    const healthUrl = getRuntimeHealthUrl(runtimeOrigin);
     const healthController = new AbortController();
-    const newSocket = io(runtimeUrl, {
+    const newSocket = io(runtimeOrigin, {
+      path: "/socket.io",
       transports: ["websocket"],
       autoConnect: false
     });
+    setRuntimeConnectionState("checking");
+    setRuntimePhase(null);
+    setRuntimeDetail("Checking runtime bridge...");
     const connectTimer = window.setTimeout(() => {
       void (async () => {
         try {
-          const response = await fetch(`${runtimeUrl}/api/health`, {
+          const response = await fetch(healthUrl, {
             signal: healthController.signal
           });
 
           if (!response.ok || disposed) {
+            setRuntimeConnectionState("unavailable");
+            setRuntimeDetail("Runtime health check failed.");
             return;
           }
 
-          setTermStatus("connecting");
+          setRuntimeConnectionState("connecting");
+          setRuntimeDetail("Connecting to runtime socket...");
           newSocket.connect();
-        } catch (error) {
+        } catch {
           if (!disposed && !healthController.signal.aborted) {
-            setTermStatus("runtime unavailable");
+            setRuntimeConnectionState("unavailable");
+            setRuntimeDetail("Runtime unavailable.");
           }
         }
       })();
@@ -125,25 +180,36 @@ export default function Workspace({ prompt, onClose }: WorkspaceProps) {
 
     const handleConnect = () => {
       if (!disposed) {
-        setTermStatus("connected");
+        setRuntimeConnectionState("connected");
+        setRuntimeDetail((current) =>
+          current === "Checking runtime bridge..." || current === "Connecting to runtime socket..."
+            ? "Sandbox attached."
+            : current
+        );
       }
     };
 
     const handleDisconnect = () => {
       if (!disposed) {
-        setTermStatus("disconnected");
+        setRuntimeConnectionState("disconnected");
+        setRuntimePhase(null);
+        setRuntimeDetail("Socket disconnected.");
       }
     };
 
     const handleConnectError = () => {
       if (!disposed) {
-        setTermStatus("runtime unavailable");
+        setRuntimeConnectionState("unavailable");
+        setRuntimePhase(null);
+        setRuntimeDetail("Runtime unavailable.");
       }
     };
 
-    const handleRuntimeStatus = (statusPayload: { detail: string }) => {
+    const handleRuntimeStatus = (statusPayload: { status: "idle" | "queued" | "running"; detail: string }) => {
       if (!disposed) {
-        setTermStatus(statusPayload.detail);
+        setRuntimeConnectionState("connected");
+        setRuntimePhase(statusPayload.status);
+        setRuntimeDetail(statusPayload.detail);
       }
     };
 
@@ -170,17 +236,27 @@ export default function Workspace({ prompt, onClose }: WorkspaceProps) {
   }, []);
 
   const handleRunFile = () => {
-    if (!socket || !socket.connected || !activeFile) return;
+    if (!activeFile) return;
 
     if (activeFile.type === "folder") {
       alert("اختر ملفًا قابلًا للتشغيل أولًا.");
       return;
     }
 
+    if (!activeRuntimeLanguage) {
+      alert("هذا النوع من الملفات لا يملك runner مباشر. شغّل ملف TypeScript أو JavaScript أو Python أو Bash.");
+      return;
+    }
+
+    if (!socket || !socket.connected) {
+      alert("اتصال runtime غير متاح الآن.");
+      return;
+    }
+
     socket.emit("runtime:run", {
       code: activeFile.content || "",
       fileName: activeFile.name,
-      language: activeFile.language || "typescript"
+      language: activeRuntimeLanguage
     });
   };
 
@@ -266,8 +342,8 @@ export default function Workspace({ prompt, onClose }: WorkspaceProps) {
     { label: "Workspace files", detail: `${fileCount} files seeded`, tone: "done" },
     {
       label: "Runtime bridge",
-      detail: termStatus === "disconnected" ? "Awaiting socket" : termStatus,
-      tone: termStatus === "disconnected" ? "queued" : "live"
+      detail: runtimeDetail,
+      tone: runtimeIsLive ? (runtimePhase === "queued" ? "queued" : "live") : "queued"
     },
     { label: "Preview surface", detail: "Ready for deploy checks", tone: "live" }
   ];
@@ -303,7 +379,12 @@ export default function Workspace({ prompt, onClose }: WorkspaceProps) {
             <Share2 size={16} />
             Share
           </button>
-          <button className="workspace-action workspace-action--primary" type="button" onClick={handleRunFile}>
+          <button
+            className="workspace-action workspace-action--primary"
+            type="button"
+            onClick={handleRunFile}
+            disabled={!canRunActiveFile}
+          >
             <Play size={16} />
             Run
           </button>
@@ -358,7 +439,7 @@ export default function Workspace({ prompt, onClose }: WorkspaceProps) {
               <article className="workspace-brief__stat">
                 <span className="workspace-brief__stat-label">Runtime</span>
                 <strong className="workspace-brief__stat-value">
-                  {termStatus === "disconnected" ? "Offline" : "Live"}
+                  {runtimeSummary}
                 </strong>
               </article>
             </div>
@@ -395,7 +476,7 @@ export default function Workspace({ prompt, onClose }: WorkspaceProps) {
                   }}
                 />
 
-                <Breadcrumb fileId={activeTabId} />
+                <Breadcrumb fileId={currentFileId} />
 
                 <div className="editor-container">
                   {activeFile && activeFile.type === "file" ? (
@@ -571,8 +652,8 @@ export default function Workspace({ prompt, onClose }: WorkspaceProps) {
 
           <footer className="statusbar">
             <span className="statusbar__item">
-              <span className={`status-dot ${termStatus === "disconnected" ? "status-dot--off" : ""}`} />
-              {termStatus === "disconnected" ? "Socket offline" : "Socket live"}
+              <span className={`status-dot ${runtimeIsLive ? "" : "status-dot--off"}`} />
+              Runtime {runtimeSummary}
             </span>
             <span className="statusbar__item">UTF-8</span>
             <span className="statusbar__item">TypeScript React</span>
